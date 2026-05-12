@@ -1,0 +1,84 @@
+﻿<Window x:Class="Barcode_File_Find.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="바코드 파일 찾기" Height="580" Width="700"
+        Loaded="Window_Loaded">
+    <Window.Resources>
+        <Style x:Key="ScannerInputTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#A0A0A0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="Background" Value="#B6FF00"/>
+                    <Setter Property="BorderBrush" Value="#008000"/>
+                    <Setter Property="BorderThickness" Value="4"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <GroupBox Header="설정" Grid.Row="0" Margin="0,0,0,10" Padding="5">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="검색 폴더 1:" VerticalAlignment="Center" Margin="0,0,5,5"/>
+                <TextBox x:Name="FolderPathTextBox1" Grid.Column="1" Margin="0,0,5,5" VerticalContentAlignment="Center" IsReadOnly="True"/>
+                <Button Content="찾아보기..." Grid.Column="2" Width="100" Margin="0,0,0,5" Click="BrowseButton1_Click"/>
+
+                <TextBlock Text="검색 폴더 2:" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <TextBox x:Name="FolderPathTextBox2" Grid.Row="1" Grid.Column="1" Margin="0,0,5,0" VerticalContentAlignment="Center" IsReadOnly="True"/>
+                <Button Content="찾아보기..." Grid.Row="1" Grid.Column="2" Width="100" Click="BrowseButton2_Click"/>
+
+                <TextBlock Text="Illustrator 대기(초):" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,5,0"/>
+                <TextBox x:Name="IllustratorTimeoutTextBox" Grid.Row="2" Grid.Column="1" Width="80" HorizontalAlignment="Left" Margin="0,5,5,0" VerticalContentAlignment="Center" LostFocus="IllustratorTimeoutTextBox_LostFocus"/>
+
+                <TextBlock Text="문서 안정화 대기(초):" Grid.Row="3" VerticalAlignment="Center" Margin="0,5,5,0"/>
+                <TextBox x:Name="IllustratorSettleDelayTextBox" Grid.Row="3" Grid.Column="1" Width="80" HorizontalAlignment="Left" Margin="0,5,5,0" VerticalContentAlignment="Center" LostFocus="IllustratorTimeoutTextBox_LostFocus"/>
+
+                <CheckBox x:Name="RunCuttingMasterCheckBox" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Content="파일 열기 후 Cutting Master5까지 실행" Margin="0,8,0,0" VerticalAlignment="Center" Checked="RunCuttingMasterCheckBox_Changed" Unchecked="RunCuttingMasterCheckBox_Changed"/>
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Header="바코드 스캐너" Grid.Row="1" Margin="0,0,0,10" Padding="5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="바코드/파일명 입력:" VerticalAlignment="Center" Margin="0,0,5,0" FontWeight="Bold"/>
+                <TextBox x:Name="BarcodeTextBox" Grid.Column="1" Height="30" FontSize="16" KeyDown="BarcodeTextBox_KeyDown" TextChanged="BarcodeTextBox_TextChanged" Style="{StaticResource ScannerInputTextBoxStyle}" Margin="0,0,5,0"/>
+                <Button x:Name="StopButton" Content="중지" Grid.Column="2" Width="75" Height="30" Click="StopButton_Click" IsEnabled="False"/>
+            </Grid>
+        </GroupBox>
+
+        <TextBlock x:Name="StatusTextBlock" Grid.Row="2" Margin="0,0,0,10" FontWeight="Bold" FontSize="14" Foreground="Blue" Text="대기 중"/>
+
+        <GroupBox Header="실행 로그" Grid.Row="3" Padding="5">
+            <TextBox x:Name="LogTextBox" FontFamily="Consolas" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextWrapping="NoWrap"/>
+        </GroupBox>
+    </Grid>
+</Window>
+
+
+
