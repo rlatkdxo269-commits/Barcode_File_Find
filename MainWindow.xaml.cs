@@ -9,7 +9,6 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Resources;
-using System.Windows.Threading;
 using Microsoft.Win32;
 using Drawing = System.Drawing;
 using Forms = System.Windows.Forms;
@@ -19,11 +18,9 @@ namespace Barcode_File_Find
     public partial class MainWindow : Window
     {
         private const string IllustratorExtension = ".eps";
-        private static readonly TimeSpan BarcodeInputIdleDelay = TimeSpan.FromMilliseconds(800);
         private AppSettings _settings;
         private readonly IllustratorAutomationService _illustratorAutomationService = new();
         private readonly AutoUpdateService _autoUpdateService = new();
-        private readonly DispatcherTimer _barcodeInputTimer;
         private bool _isLoadingSettings;
         private CancellationTokenSource? _currentOperationCts;
         private Forms.NotifyIcon? _trayIcon;
@@ -34,11 +31,6 @@ namespace Barcode_File_Find
             InitializeComponent();
             SetWindowIcon();
             InitializeTrayIcon();
-            _barcodeInputTimer = new DispatcherTimer
-            {
-                Interval = BarcodeInputIdleDelay
-            };
-            _barcodeInputTimer.Tick += BarcodeInputTimer_Tick;
             _settings = SettingsManager.Load();
             NormalizeSettings();
             ApplySettingsToUi();
@@ -226,7 +218,6 @@ namespace Barcode_File_Find
                 return;
             }
 
-            _barcodeInputTimer.Stop();
             FocusBarcodeInput();
             e.Handled = true;
         }
@@ -235,40 +226,13 @@ namespace Barcode_File_Find
         {
             if (e.Key == Key.Enter)
             {
-                _barcodeInputTimer.Stop();
                 await ProcessBarcodeInputAsync();
                 e.Handled = true;
             }
         }
 
-        private void BarcodeTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            if (_currentOperationCts != null || !BarcodeTextBox.IsEnabled)
-            {
-                _barcodeInputTimer.Stop();
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(BarcodeTextBox.Text))
-            {
-                _barcodeInputTimer.Stop();
-                return;
-            }
-
-            _barcodeInputTimer.Stop();
-            _barcodeInputTimer.Start();
-        }
-
-        private async void BarcodeInputTimer_Tick(object? sender, EventArgs e)
-        {
-            _barcodeInputTimer.Stop();
-            await ProcessBarcodeInputAsync();
-        }
-
         private async Task ProcessBarcodeInputAsync()
         {
-            _barcodeInputTimer.Stop();
-
             if (_currentOperationCts != null)
             {
                 SetStatus("이미 작업이 진행 중입니다. 중지 후 다시 시도해 주세요.", true);

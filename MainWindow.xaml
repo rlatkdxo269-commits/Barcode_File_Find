@@ -88,7 +88,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="바코드/파일명 입력:" VerticalAlignment="Center" Margin="0,0,5,0" FontWeight="Bold"/>
-                <TextBox x:Name="BarcodeTextBox" Grid.Column="1" Height="30" FontSize="16" KeyDown="BarcodeTextBox_KeyDown" TextChanged="BarcodeTextBox_TextChanged" Style="{StaticResource ScannerInputTextBoxStyle}" Margin="0,0,5,0"/>
+                <TextBox x:Name="BarcodeTextBox" Grid.Column="1" Height="30" FontSize="16" KeyDown="BarcodeTextBox_KeyDown" Style="{StaticResource ScannerInputTextBoxStyle}" Margin="0,0,5,0"/>
                 <Button x:Name="StopButton" Content="중지" Grid.Column="2" Width="75" Height="30" Click="StopButton_Click" IsEnabled="False"/>
             </Grid>
         </GroupBox>
