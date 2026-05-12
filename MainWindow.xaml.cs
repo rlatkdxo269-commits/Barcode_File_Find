@@ -2,12 +2,16 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Resources;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using Drawing = System.Drawing;
+using Forms = System.Windows.Forms;
 
 namespace Barcode_File_Find
 {
@@ -20,10 +24,13 @@ namespace Barcode_File_Find
         private readonly DispatcherTimer _barcodeInputTimer;
         private bool _isLoadingSettings;
         private CancellationTokenSource? _currentOperationCts;
+        private Forms.NotifyIcon? _trayIcon;
+        private Drawing.Icon? _trayIconImage;
 
         public MainWindow()
         {
             InitializeComponent();
+            InitializeTrayIcon();
             _barcodeInputTimer = new DispatcherTimer
             {
                 Interval = BarcodeInputIdleDelay
@@ -35,8 +42,97 @@ namespace Barcode_File_Find
             Logger.OnLogAdded += Logger_OnLogAdded;
         }
 
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool DestroyIcon(IntPtr hIcon);
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            BarcodeTextBox.Focus();
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            _trayIcon?.Dispose();
+            _trayIconImage?.Dispose();
+            base.OnClosed(e);
+        }
+
+        private void InitializeTrayIcon()
+        {
+            _trayIconImage = CreateTrayIcon();
+            if (_trayIconImage == null)
+            {
+                Logger.Log("트레이 아이콘 초기화 실패: TrayIcon_1.png를 찾지 못했습니다.");
+                return;
+            }
+
+            _trayIcon = new Forms.NotifyIcon
+            {
+                Icon = _trayIconImage,
+                Text = "바코드 파일 찾기",
+                Visible = true,
+                ContextMenuStrip = CreateTrayMenu()
+            };
+            _trayIcon.DoubleClick += (_, _) => ShowMainWindow();
+        }
+
+        private static Drawing.Icon? CreateTrayIcon()
+        {
+            StreamResourceInfo? resource = System.Windows.Application.GetResourceStream(
+                new Uri("pack://application:,,,/Assets/TrayIcon_1.png", UriKind.Absolute));
+
+            if (resource != null)
+            {
+                using Stream stream = resource.Stream;
+                return CreateIconFromPngStream(stream);
+            }
+
+            string iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "TrayIcon_1.png");
+            if (File.Exists(iconPath))
+            {
+                using var stream = File.OpenRead(iconPath);
+                return CreateIconFromPngStream(stream);
+            }
+
+            return null;
+        }
+
+        private static Drawing.Icon CreateIconFromPngStream(Stream stream)
+        {
+            using var sourceBitmap = new Drawing.Bitmap(stream);
+            using var trayBitmap = new Drawing.Bitmap(32, 32);
+            using (Drawing.Graphics graphics = Drawing.Graphics.FromImage(trayBitmap))
+            {
+                graphics.Clear(Drawing.Color.Transparent);
+                graphics.InterpolationMode = Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                graphics.DrawImage(sourceBitmap, new Drawing.Rectangle(0, 0, 32, 32));
+            }
+
+            IntPtr hIcon = trayBitmap.GetHicon();
+
+            try
+            {
+                return (Drawing.Icon)Drawing.Icon.FromHandle(hIcon).Clone();
+            }
+            finally
+            {
+                DestroyIcon(hIcon);
+            }
+        }
+
+        private Forms.ContextMenuStrip CreateTrayMenu()
+        {
+            var menu = new Forms.ContextMenuStrip();
+            menu.Items.Add("열기", null, (_, _) => ShowMainWindow());
+            menu.Items.Add("종료", null, (_, _) => Close());
+            return menu;
+        }
+
+        private void ShowMainWindow()
+        {
+            Show();
+            WindowState = WindowState.Normal;
+            Activate();
             BarcodeTextBox.Focus();
         }
 
