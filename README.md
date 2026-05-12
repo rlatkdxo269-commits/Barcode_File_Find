@@ -64,16 +64,16 @@ dotnet build
 앱 단일 실행 파일 배포 빌드:
 
 ```powershell
-dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish-single
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o publish-single
 ```
 
 설치 파일 빌드:
 
 ```powershell
-dotnet publish Installer\BarcodeFileFind.Setup.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o installer-output
+.\Installer\IExpress\Build-IExpressInstaller.ps1
 ```
 
-사용자에게 배포할 파일은 `installer-output/Barcode_File_Find_Setup.exe`입니다.
+사용자에게 배포할 파일은 `installer-iexpress/Barcode_File_Find_Setup.exe`입니다. 이 설치 파일은 Windows 기본 IExpress 패키지로 만들어지며, 앱 실행 파일과 설치 스크립트만 포함해 용량을 줄입니다.
 
 ## 프로젝트 구조
 
@@ -84,7 +84,7 @@ Barcode_File_Find/
 ├─ MainWindow.xaml.cs              # 스캔, 검색, 실행 흐름
 ├─ IllustratorAutomationService.cs # Illustrator / Cutting Master 자동화
 ├─ FileSelectionWindow.xaml        # 중복 파일 선택 창
-├─ Installer/                      # 시작 메뉴 바로가기를 만드는 설치 파일 프로젝트
+├─ Installer/IExpress/             # 저용량 설치 파일 빌드 스크립트
 ├─ SettingsManager.cs              # settings.json 저장/로드
 └─ Logger.cs                       # 실행 로그
 ```
@@ -99,6 +99,7 @@ obj/
 publish/
 publish-single/
 installer-output/
+installer-iexpress/
 portable/
 *.user
 .vs/
