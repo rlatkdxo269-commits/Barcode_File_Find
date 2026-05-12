@@ -16,6 +16,10 @@ Get-Process -Name 'Barcode_File_Find' -ErrorAction SilentlyContinue | Stop-Proce
 
 New-Item -ItemType Directory -Path $installDir -Force | Out-Null
 Copy-Item -LiteralPath $sourceAppPath -Destination $appPath -Force
+$appVersion = (Get-Item -LiteralPath $appPath).VersionInfo.ProductVersion
+if ([string]::IsNullOrWhiteSpace($appVersion)) {
+    $appVersion = '1.0.0'
+}
 
 $programsDir = [Environment]::GetFolderPath('Programs')
 $shortcutDir = Join-Path $programsDir $appDisplayName
@@ -44,7 +48,7 @@ Set-Content -LiteralPath $uninstallScriptPath -Value $uninstallScript -Encoding 
 $registryPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\$uninstallKeyName"
 New-Item -Path $registryPath -Force | Out-Null
 Set-ItemProperty -Path $registryPath -Name DisplayName -Value $appDisplayName
-Set-ItemProperty -Path $registryPath -Name DisplayVersion -Value '1.0.0'
+Set-ItemProperty -Path $registryPath -Name DisplayVersion -Value $appVersion
 Set-ItemProperty -Path $registryPath -Name Publisher -Value 'rlatkdxo269-commits'
 Set-ItemProperty -Path $registryPath -Name InstallLocation -Value $installDir
 Set-ItemProperty -Path $registryPath -Name DisplayIcon -Value $appPath

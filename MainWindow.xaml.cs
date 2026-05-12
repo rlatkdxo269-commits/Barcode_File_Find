@@ -22,6 +22,7 @@ namespace Barcode_File_Find
         private static readonly TimeSpan BarcodeInputIdleDelay = TimeSpan.FromMilliseconds(800);
         private AppSettings _settings;
         private readonly IllustratorAutomationService _illustratorAutomationService = new();
+        private readonly AutoUpdateService _autoUpdateService = new();
         private readonly DispatcherTimer _barcodeInputTimer;
         private bool _isLoadingSettings;
         private CancellationTokenSource? _currentOperationCts;
@@ -47,22 +48,20 @@ namespace Barcode_File_Find
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool DestroyIcon(IntPtr hIcon);
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             BarcodeTextBox.Focus();
+            await CheckForUpdatesAsync();
         }
 
         private void SetWindowIcon()
         {
-            StreamResourceInfo? resource = System.Windows.Application.GetResourceStream(
-                new Uri("pack://application:,,,/Assets/TrayIcon_1.png", UriKind.Absolute));
-
-            if (resource == null)
+            using Stream? stream = OpenTrayIconPngStream();
+            if (stream == null)
             {
                 return;
             }
 
-            using Stream stream = resource.Stream;
             Icon = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
         }
 
@@ -94,20 +93,35 @@ namespace Barcode_File_Find
 
         private static Drawing.Icon? CreateTrayIcon()
         {
+            using Stream? stream = OpenTrayIconPngStream();
+            return stream == null
+                ? null
+                : CreateIconFromPngStream(stream);
+        }
+
+        private static Stream? OpenTrayIconPngStream()
+        {
             StreamResourceInfo? resource = System.Windows.Application.GetResourceStream(
                 new Uri("pack://application:,,,/Assets/TrayIcon_1.png", UriKind.Absolute));
 
             if (resource != null)
             {
-                using Stream stream = resource.Stream;
-                return CreateIconFromPngStream(stream);
+                return resource.Stream;
+            }
+
+            string? embeddedResourceName = typeof(MainWindow).Assembly
+                .GetManifestResourceNames()
+                .FirstOrDefault(name => name.EndsWith("TrayIcon_1.png", StringComparison.OrdinalIgnoreCase));
+
+            if (embeddedResourceName != null)
+            {
+                return typeof(MainWindow).Assembly.GetManifestResourceStream(embeddedResourceName);
             }
 
             string iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "TrayIcon_1.png");
             if (File.Exists(iconPath))
             {
-                using var stream = File.OpenRead(iconPath);
-                return CreateIconFromPngStream(stream);
+                return File.OpenRead(iconPath);
             }
 
             return null;
@@ -150,6 +164,14 @@ namespace Barcode_File_Find
             WindowState = WindowState.Normal;
             Activate();
             BarcodeTextBox.Focus();
+        }
+
+        private async Task CheckForUpdatesAsync()
+        {
+            await Task.Delay(TimeSpan.FromSeconds(2));
+            await _autoUpdateService.CheckAndInstallUpdateAsync(
+                message => Dispatcher.Invoke(() => SetStatus(message, false)),
+                CancellationToken.None);
         }
 
         private void Logger_OnLogAdded(string logMessage)
