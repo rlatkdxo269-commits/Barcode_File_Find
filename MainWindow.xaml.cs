@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using System.Windows.Resources;
 using System.Windows.Threading;
 using Microsoft.Win32;
@@ -30,6 +31,7 @@ namespace Barcode_File_Find
         public MainWindow()
         {
             InitializeComponent();
+            SetWindowIcon();
             InitializeTrayIcon();
             _barcodeInputTimer = new DispatcherTimer
             {
@@ -48,6 +50,20 @@ namespace Barcode_File_Find
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             BarcodeTextBox.Focus();
+        }
+
+        private void SetWindowIcon()
+        {
+            StreamResourceInfo? resource = System.Windows.Application.GetResourceStream(
+                new Uri("pack://application:,,,/Assets/TrayIcon_1.png", UriKind.Absolute));
+
+            if (resource == null)
+            {
+                return;
+            }
+
+            using Stream stream = resource.Stream;
+            Icon = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
         }
 
         protected override void OnClosed(EventArgs e)
