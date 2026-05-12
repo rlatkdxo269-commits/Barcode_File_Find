@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>Barcode_File_Find_Setup</AssemblyName>
+    <ApplicationIcon>..\Assets\TrayIcon_1.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\publish-single\Barcode_File_Find.exe" Link="Payload\Barcode_File_Find.exe"/>
+  </ItemGroup>
+
+</Project>

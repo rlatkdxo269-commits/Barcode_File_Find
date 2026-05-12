@@ -18,4 +18,10 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Installer\**"/>
+    <EmbeddedResource Remove="Installer\**"/>
+    <None Remove="Installer\**"/>
+  </ItemGroup>
+
 </Project>

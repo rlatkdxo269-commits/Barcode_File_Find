@@ -2,6 +2,7 @@ bin/
 obj/
 publish/
 publish-single/
+installer-output/
 portable/
 *.user
 *.suo
