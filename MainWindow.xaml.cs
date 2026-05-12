@@ -181,6 +181,18 @@ namespace Barcode_File_Find
             }
         }
 
+        private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter || BarcodeTextBox.IsKeyboardFocusWithin)
+            {
+                return;
+            }
+
+            _barcodeInputTimer.Stop();
+            FocusBarcodeInput();
+            e.Handled = true;
+        }
+
         private async void BarcodeTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
@@ -251,6 +263,18 @@ namespace Barcode_File_Find
             }
 
             BarcodeTextBox.Focus();
+        }
+
+        private void FocusBarcodeInput()
+        {
+            if (!BarcodeTextBox.IsEnabled)
+            {
+                return;
+            }
+
+            BarcodeTextBox.Focus();
+            Keyboard.Focus(BarcodeTextBox);
+            BarcodeTextBox.SelectAll();
         }
 
         private void StopButton_Click(object sender, RoutedEventArgs e)
