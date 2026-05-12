@@ -1,4 +1,4 @@
-# Barcode File Find
+# 바코드 파일 찾기
 
 QR/바코드 스캐너로 읽은 파일명을 기준으로 `.eps` 파일을 찾아 Adobe Illustrator에서 여는 Windows WPF 프로그램입니다. 필요하면 Illustrator에서 파일을 연 뒤 Cutting Master 5 메뉴 실행까지 이어서 처리합니다.
 
@@ -24,11 +24,13 @@ QR/바코드 스캐너로 읽은 파일명을 기준으로 `.eps` 파일을 찾�
 
 ## 실행 파일 다운로드
 
-최신 실행 파일은 GitHub Releases에서 받을 수 있습니다.
+최신 실행 파일은 GitHub 릴리스에서 받을 수 있습니다.
 
-[Barcode File Find 다운로드](https://github.com/rlatkdxo269-commits/Barcode_File_Find/releases/latest)
+[바코드 파일 찾기 다운로드](https://github.com/rlatkdxo269-commits/Barcode_File_Find/releases/latest)
 
-Releases 페이지에서 `Barcode_File_Find.exe` 또는 `Barcode_File_Find.zip` 파일을 내려받은 뒤 실행하면 됩니다. 배포본을 zip으로 제공하는 경우 압축을 푼 뒤 `Barcode_File_Find.exe`를 실행하세요.
+릴리스 페이지에서 `Barcode_File_Find.exe` 파일을 내려받은 뒤 실행하면 됩니다.
+
+이 프로그램은 단일 실행 파일 형태로 배포됩니다. 별도의 설치 과정 없이 `Barcode_File_Find.exe`를 실행하면 되고, 같은 폴더에 `settings.json`과 `log.txt`가 자동으로 생성됩니다.
 
 ## 사용 방법
 
@@ -52,19 +54,19 @@ ABC123.eps
 
 ## 개발 및 빌드
 
-Debug 빌드:
+개발용 빌드:
 
 ```powershell
 dotnet build
 ```
 
-Release publish:
+단일 실행 파일 배포 빌드:
 
 ```powershell
-dotnet publish -c Release -r win-x64 --self-contained true -o publish
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish-single
 ```
 
-실사용 배포본은 `publish` 결과물을 `portable` 폴더로 복사해서 사용합니다. `portable/settings.json`과 `portable/log.txt`는 사용자의 설정과 로그를 유지하기 위한 파일입니다.
+실사용 배포본은 `publish-single/Barcode_File_Find.exe`입니다. 실행하면 실행 파일이 있는 폴더에 `settings.json`과 `log.txt`가 생성되어 설정과 로그가 유지됩니다.
 
 ## 프로젝트 구조
 
@@ -87,6 +89,7 @@ Barcode_File_Find/
 bin/
 obj/
 publish/
+publish-single/
 portable/
 *.user
 .vs/
